@@ -38,7 +38,7 @@ public final class Utils {
         System.out.println("Sorting is " + (same ? "right" : "wrong"));
     }
 
-    private static int[] generateRandomArray(int size) {
+    public static int[] generateRandomArray(int size) {
         Random r = new Random();
 
         int[] arr = new int[size];
