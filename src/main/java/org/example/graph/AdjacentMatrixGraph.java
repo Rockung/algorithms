@@ -1,6 +1,8 @@
 package org.example.graph;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Use adjacent matrix to represent a graph
@@ -11,7 +13,8 @@ public class AdjacentMatrixGraph {
     private int[][] edgeMatrix;
 
     public static void main(String[] args) {
-        test01();
+        // test01();
+        test02();
     }
 
     /**
@@ -61,13 +64,7 @@ public class AdjacentMatrixGraph {
      */
     public int degreeOf(String v) {
         // get the index of v
-        int index = -1;
-        for (int i = 0; i < vertexes.length; i++) {
-            if (v.equals(vertexes[i])) {
-                index = i;
-                break;
-            }
-        }
+        int index = indexOf(v);
         if (index == -1) return -1;
 
         // get the degree of v
@@ -79,9 +76,43 @@ public class AdjacentMatrixGraph {
         return degree;
     }
 
-    public void depthFirstSearch() {
+    /**
+     * Get the depth-first path
+     *
+     * @param v the start vertex
+     * @return the list of path
+     */
+    public List<Integer> depthFirstSearch(String v) {
+        int index = indexOf(v);
+        if (index == -1) return new ArrayList<>();
 
+        // prepare for recursive call
+        ArrayList<Integer> path = new ArrayList<>();
+        boolean[] visited = new boolean[vertexes.length];
 
+        // do depth-first searching
+        doDepthFirstSearch(index, visited, path);
+
+        return path;
+    }
+
+    /**
+     * Add **start** to the path, mark it as visited and find the next one recursively
+     *
+     * @param start
+     * @param visited
+     * @param path
+     */
+    private void doDepthFirstSearch(int start, boolean[] visited, ArrayList<Integer> path) {
+        visited[start] = true;
+        path.add(start);
+
+        for (int i = 0; i < edgeMatrix[0].length; i++) {
+            if (edgeMatrix[start][i] == 1 && !visited[i]) {
+                doDepthFirstSearch(i, visited, path);
+                break;
+            }
+        }
     }
 
     public void breathFirstSearch() {
@@ -102,6 +133,34 @@ public class AdjacentMatrixGraph {
             }
             System.out.println();
         }
+    }
+
+    /**
+     * Get the index of vertex v
+     *
+     * @param v the vertex name
+     * @return if the vertex does not exist, return -1
+     */
+    public int indexOf(String v) {
+        int index = -1;
+        for (int i = 0; i < this.vertexes.length; i++) {
+            if (v.equals(this.vertexes[i])) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    /**
+     * Get the vertex name of i
+     *
+     * @param i
+     * @return
+     */
+    public String indexOf(int i) {
+        return this.vertexes[i];
     }
 
     /**
@@ -133,5 +192,16 @@ public class AdjacentMatrixGraph {
         System.out.println("d's degree: " + graph.degreeOf("d"));
         System.out.println("e's degree: " + graph.degreeOf("e"));
         System.out.println("f's degree: " + graph.degreeOf("f"));
+    }
+
+    private static void test02() {
+        AdjacentMatrixGraph graph = createGraph01();
+        List<Integer> path = graph.depthFirstSearch("a");
+
+        for (int i: path) {
+            System.out.print(graph.indexOf(i) + "->");
+        }
+        System.out.println();
+
     }
 }
