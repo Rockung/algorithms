@@ -12,12 +12,6 @@ public class AdjacentMatrixGraph {
     private String[] vertexes;
     private int[][] edgeMatrix;
 
-    public static void main(String[] args) {
-        // test01();
-        // test02();
-        test03();
-    }
-
     /**
      * Construct with an array of vertex names
      *
@@ -84,15 +78,15 @@ public class AdjacentMatrixGraph {
      * @return the list of path
      */
     public List<Edge> depthFirstSearch(String v) {
-        int index = indexOf(v);
-        if (index == -1) return new ArrayList<>();
+        int start = indexOf(v);
+        if (start == -1) return new ArrayList<>();
 
         // prepare for recursive call
         ArrayList<Edge> path = new ArrayList<>();
         boolean[] visited = new boolean[vertexes.length];
 
         // do depth-first searching
-        doDepthFirstSearch(index, visited, path);
+        doDepthFirstSearch(start, visited, path);
 
         return path;
     }
@@ -152,7 +146,10 @@ public class AdjacentMatrixGraph {
         return path;
     }
 
-    public void printGraphMatrix() {
+    /**
+     *
+     */
+    public void printGraph() {
         System.out.print("  ");
         for (int i = 0; i < vertexes.length; i++) {
             System.out.print(vertexes[i] + " ");
@@ -250,7 +247,7 @@ public class AdjacentMatrixGraph {
 
     private static void test01() {
         AdjacentMatrixGraph graph = createGraph01();
-        graph.printGraphMatrix();
+        graph.printGraph();
         System.out.println("a's degree: " + graph.degreeOf("a"));
         System.out.println("b's degree: " + graph.degreeOf("b"));
         System.out.println("c's degree: " + graph.degreeOf("c"));
@@ -280,4 +277,11 @@ public class AdjacentMatrixGraph {
         System.out.println();
 
     }
+
+    public static void main(String[] args) {
+        // test01();
+        // test02();
+        test03();
+    }
+
 }
