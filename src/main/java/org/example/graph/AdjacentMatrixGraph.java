@@ -140,7 +140,7 @@ public class AdjacentMatrixGraph {
         TarjanContext context = new TarjanContext(this.vertexes.length);
 
         // parent: -1, no parent
-        // root: true, the start is the root
+        // root: true, start from the root
         doTarjanAlgorithm(start, -1, true, context);
 
         return context.edgeVertex;
@@ -148,6 +148,20 @@ public class AdjacentMatrixGraph {
 
     /**
      * Tarjan algorithm
+     *   when depth-first traversing a graph, give each vertex dfn and low
+     *   number; when back-tracing, update the low number of each vertex.
+     *
+     *   update the low number
+     *     1. if the child is not visited yet, update when back-tracing
+     *     2. if the child is visited, update with non-parent's low number
+     *
+     *   check cut-vertex of vertex **parent**
+     *      1. dfn[parent] <= low[child]
+     *      2.1 root with a degree of at least two
+     *      2.2 internal vertex
+     *
+     *   check cut-edge of vertex **parent**
+     *      dfn[parent] < low[child]
      *
      * @param start
      * @param parent
@@ -166,13 +180,13 @@ public class AdjacentMatrixGraph {
             if (context.dfn[i] <=0) {  // not visited yet
                 doTarjanAlgorithm(i, start, false, context);
 
-                // when tracing back
+                // when tracing back, update if child's low number is less
                 context.low[start] = Math.min(context.low[start], context.low[i]);
 
                 // cut-vertex
                 if (context.low[i] >= context.dfn[start]) {
                     /**
-                     * 1. root with at least two sub-trees
+                     * 1. root with a degree of at least two
                      * 2. internal vertex
                      */
                     if (!root || this.degreeOf(start) > 1)
@@ -183,7 +197,8 @@ public class AdjacentMatrixGraph {
                         context.edgeVertex.cutEdges.add(new Edge(start, i));
                     }
                 }
-            } else {
+            } else {   // visited
+                // update using non-parent low number
                 if (parent != i && context.dfn[i] < context.dfn[start]) {
                     context.low[start] = Math.min(context.low[start], context.dfn[i]);
                 }
