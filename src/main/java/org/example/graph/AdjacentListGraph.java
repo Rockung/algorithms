@@ -8,7 +8,9 @@ import java.util.List;
 
 /**
  * Use linked list to represent a graph
- *
+ *   1. degree of a vertex
+ *   2. depth-first traversal and breadth-first traversal
+ *   3. cut-vertex/cut-edge: Tarjan algorithm
  */
 public class AdjacentListGraph {
     private String[] vertexes;   // vertexes of graph
@@ -22,6 +24,11 @@ public class AdjacentListGraph {
     public AdjacentListGraph(String[] vertexes) {
         this.vertexes = Arrays.copyOf(vertexes, vertexes.length);
         this.heads = new LinkedList[vertexes.length];
+
+        // init the heads to save code: if(heads != null)
+        for (int i = 0; i < heads.length; i++) {
+            this.heads[i] = new LinkedList();
+        }
     }
 
     /**
@@ -46,32 +53,18 @@ public class AdjacentListGraph {
         if (index1 == -1 || index2 == -1)
             throw new IllegalArgumentException("Vertexes are not exist.");
 
-        LinkedList list = null;
-
-        // v1
-        list = heads[index1];
-        if (list == null) {
-            list = new LinkedList();
-            heads[index1] = list;
-        }
-        list.add(index2);
-
-        // v2
-        list = heads[index2];
-        if (list == null) {
-            list = new LinkedList();
-            heads[index2] = list;
-        }
-        list.add(index1);
+        // add to the linked lists
+        heads[index1].add(index2);
+        heads[index2].add(index1);
     }
 
     /**
-     * Depth-first search
+     * Depth-first traversal
      *
      * @param v
      * @return
      */
-    public List<Edge> depthFirstSearch(String v) {
+    public List<Edge> depthFirstTraverse(String v) {
         int start = indexOf(v);
         if (start == -1) return new ArrayList<>();
 
@@ -80,7 +73,7 @@ public class AdjacentListGraph {
         boolean[] visited = new boolean[vertexes.length];
 
         // do depth-first searching
-        doDepthFirstSearch(start, visited, path);
+        doDepthFirstTraverse(start, visited, path);
 
         return path;
     }
@@ -95,18 +88,15 @@ public class AdjacentListGraph {
      * @param visisted
      * @param path
      */
-    private void doDepthFirstSearch(int start, boolean[] visisted, ArrayList<Edge> path) {
+    private void doDepthFirstTraverse(int start, boolean[] visisted, ArrayList<Edge> path) {
         visisted[start] = true;
 
-        LinkedList list = this.heads[start];
-        if (list == null) return;
-
-        LinkedList.Node node = list.head();
+        LinkedList.Node node = this.heads[start].head();
         while(node != null) {
             int i = node.get();
             if (!visisted[i]) {
                 path.add(new Edge(start, node.get()));
-                doDepthFirstSearch(i, visisted, path);
+                doDepthFirstTraverse(i, visisted, path);
             }
 
             node = node.next();
@@ -114,14 +104,14 @@ public class AdjacentListGraph {
     }
 
     /**
-     * Breadth-first search
+     * Breadth-first traversal
      *   use FIFO queue to visit vertexes
      *   mark the visited vertexes
      *
      * @param v
      * @return
      */
-    public List<Edge> breadthFirstSearch(String v) {
+    public List<Edge> breadthFirstTraverse(String v) {
         int start = indexOf(v);
         if (start == -1) return new ArrayList<>();
 
@@ -134,10 +124,7 @@ public class AdjacentListGraph {
             start = queue.remove(0);
             visited[start] = true;
 
-            LinkedList list = this.heads[start];
-            if (list == null) continue;
-
-            LinkedList.Node node = list.head();
+            LinkedList.Node node = this.heads[start].head();
             while (node != null) {
                 int i = node.get();
 
@@ -187,27 +174,16 @@ public class AdjacentListGraph {
      * Print the graph
      */
     public void printGraph() {
-        for (int i = 0; i < heads.length; i++) {
-            LinkedList list = heads[i];
+        for (int i = 0; i < this.heads.length; i++) {
             System.out.print(vertexes[i] + "->");
-            if (list != null) {
-                LinkedList.Node node = list.head();
-                while(node != null) {
-                    System.out.print(vertexes[node.get()] + " ");
-                    node = node.next();
-                }
+
+            LinkedList.Node node = this.heads[i].head();
+            while(node != null) {
+                System.out.print(vertexes[node.get()] + " ");
+                node = node.next();
             }
+
             System.out.println();
-        }
-    }
-
-    public static class Edge {
-        int v1;
-        int v2;
-
-        public Edge(int v1, int v2) {
-            this.v1 = v1;
-            this.v2 = v2;
         }
     }
 
@@ -239,7 +215,7 @@ public class AdjacentListGraph {
 
     private static void test02() {
         AdjacentListGraph graph = createGraph();
-        List<Edge> path = graph.depthFirstSearch("1");
+        List<Edge> path = graph.depthFirstTraverse("1");
 
         for (Edge e: path) {
             System.out.print(graph.indexOf(e.v1) + "-" + graph.indexOf(e.v2) + " ");
@@ -249,7 +225,7 @@ public class AdjacentListGraph {
 
     private static void test03() {
         AdjacentListGraph graph = createGraph();
-        List<Edge> path = graph.breadthFirstSearch("1");
+        List<Edge> path = graph.breadthFirstTraverse("1");
 
         for (Edge e: path) {
             System.out.print(graph.indexOf(e.v1) + "-" + graph.indexOf(e.v2) + " ");
