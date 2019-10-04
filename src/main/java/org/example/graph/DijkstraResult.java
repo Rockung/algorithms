@@ -1,39 +1,35 @@
 package org.example.graph;
 
-import java.util.ArrayList;
-
 public class DijkstraResult {
     int start;
     int[] dist;
     int[] p;
 
-    ArrayList<Integer> V_S;
-
     public DijkstraResult(int start, int len) {
         this.start = start;
         this.dist = new int[len];
         this.p = new int[len];
+    }
 
-        this.V_S = new ArrayList<>();
-        for (int i = 0; i < len ; i++) {
+    public void printResult(WeightedMatrixGraph g) {
+        System.out.println("start: " + g.indexOf(this.start));
+        System.out.println("shortest paths:");
+        for (int i = 0; i < this.dist.length; i++) {
             if (i != this.start)
-                this.V_S.add(i);
+                System.out.printf("\t%s(%d)\n", buildPath(i, g), dist[i]);
         }
     }
 
-    public void printResult() {
-        System.out.println("start: " + start);
+    private String buildPath(int i, WeightedMatrixGraph g) {
+        StringBuilder builder = new StringBuilder();
+        builder.insert(0, "->"+ g.indexOf(i));
 
-        System.out.print(" dist: ");
-        for (int i = 0; i < this.dist.length; i++) {
-            System.out.print(dist[i] + " ");
+        int j = this.p[i];
+        while( j != -1) {
+            builder.insert(0, "->" + g.indexOf(j));
+            j = this.p[j];
         }
-        System.out.println();
 
-        System.out.print("    p: ");
-        for (int i = 0; i < this.p.length; i++) {
-            System.out.print(p[i] + " ");
-        }
-        System.out.println();
+        return builder.toString();
     }
 }
