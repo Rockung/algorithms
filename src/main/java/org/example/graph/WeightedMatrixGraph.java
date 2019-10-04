@@ -20,6 +20,13 @@ public class WeightedMatrixGraph {
 
         this.vertexes = Arrays.copyOf(vertexes, len);
         this.edgeMatrix = new int[len][len];
+
+        for (int i = 0; i < len; i++) {
+            for (int j = 0; j < len; j++) {
+                if (i != j)
+                    this.edgeMatrix[i][j] = Integer.MAX_VALUE;
+            }
+        }
     }
 
     /**
@@ -60,7 +67,45 @@ public class WeightedMatrixGraph {
         int start = indexOf(v);
         if (start == -1) return null;
 
-        DijkstraResult result = new DijkstraResult(this.vertexes.length);
+        DijkstraResult result = new DijkstraResult(start, this.vertexes.length);
+
+        // init
+        for (int i = 0; i < this.edgeMatrix[0].length; i++) {
+            result.dist[i] = this.edgeMatrix[start][i];
+            result.p[i] = this.edgeMatrix[start][i] < Integer.MAX_VALUE ? start : -1;
+            result.p[start] = -1;
+        }
+
+        while(!result.V_S.isEmpty()) {
+            // get the minimum value and its index
+            int index = -1;
+            int min = Integer.MAX_VALUE;
+            for (int i: result.V_S) {
+                if (result.dist[i] <= min) { // equal sign prevents infinite loop
+                    min = result.dist[i];
+                    index = i;
+                }
+            }
+
+            // equal sign guarantees index is not -1
+            // if (index == -1) continue;
+
+            // remove the index from V_S
+            result.V_S.remove(new Integer(index));
+
+            // update dist[] and p[]
+            for (int i: result.V_S) {
+                if (this.edgeMatrix[index][i] < Integer.MAX_VALUE)  { // prevent overflow
+                    if (result.dist[index] < Integer.MAX_VALUE) {     // prevent overflow
+                        int dist = result.dist[index] + this.edgeMatrix[index][i];
+                        if (result.dist[i] > dist) {
+                            result.dist[i] = dist;
+                            result.p[i] = index;
+                        }
+                    }
+                }
+            }
+        }
 
         return result;
     }
@@ -133,12 +178,36 @@ public class WeightedMatrixGraph {
         return graph;
     }
 
+    private static WeightedMatrixGraph createGraph02() {
+        WeightedMatrixGraph g = new WeightedMatrixGraph(new String[] {
+           "0", "1", "2", "3", "4"
+        });
+
+        g.addEdge("0", "4", 4);
+        g.addEdge("0", "3", 2);
+        g.addEdge("1", "0", 6);
+        g.addEdge("1", "3", 2);
+        g.addEdge("2", "1", 2);
+        g.addEdge("2", "3", 5);
+        g.addEdge("3", "0", 7);
+        g.addEdge("3", "4", 1);
+
+        return g;
+    }
+
     private static void test01() {
         WeightedMatrixGraph graph = createGraph01();
         graph.printGraph();
     }
 
+    private static void test02() {
+        WeightedMatrixGraph graph = createGraph02();
+        DijkstraResult result = graph.buildShortestPath("3");
+        result.printResult();
+    }
+
     public static void main(String[] args) {
-        test01();
+        // test01();
+        test02();
     }
 }
