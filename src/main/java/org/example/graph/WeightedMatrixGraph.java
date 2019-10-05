@@ -35,8 +35,8 @@ public class WeightedMatrixGraph {
     /**
      * Add an edge to the graph
      *
-     * @param from     start point of the edge
-     * @param to       end point of the edge
+     * @param from     start vertex of the edge
+     * @param to       end vertex of the edge
      * @param weight   weight of the edge, cannot be negative
      */
     public void addEdge(String from, String to, int weight) {
@@ -46,7 +46,7 @@ public class WeightedMatrixGraph {
         if (from.equals(to))
                 throw new IllegalArgumentException("Vertexes cannot be the same.");
 
-        // get the indexes of v1 and v2
+        // get the indexes of from and to
         int index1 = -1;
         int index2 = -1;
         for (int i = 0; i < vertexes.length; i++) {
@@ -96,7 +96,8 @@ public class WeightedMatrixGraph {
             int index = -1;
             int min = Integer.MAX_VALUE;
             for (int i: V_S) {
-                if (result.dist[i] <= min) { // equal sign prevents infinite loop
+                // equal sign help avoiding infinite loop
+                if (result.dist[i] <= min) {
                     min = result.dist[i];
                     index = i;
                 }
@@ -110,8 +111,8 @@ public class WeightedMatrixGraph {
 
             // update dist[] and p[] of vertexes in the V-S
             for (int i: V_S) {
-                if (this.edgeMatrix[index][i] < Integer.MAX_VALUE)  { // prevent overflow
-                    if (result.dist[index] < Integer.MAX_VALUE) {     // prevent overflow
+                if (this.edgeMatrix[index][i] < Integer.MAX_VALUE)  { // avoid overflow
+                    if (result.dist[index] < Integer.MAX_VALUE) {     // avoid overflow
                         int dist = result.dist[index] + this.edgeMatrix[index][i];
                         if (result.dist[i] > dist) {  // if shorter, update
                             result.dist[i] = dist;

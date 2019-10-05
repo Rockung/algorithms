@@ -1,9 +1,12 @@
 package org.example.graph;
 
+/**
+ * The result of Dijkstra algorithm
+ */
 public class DijkstraResult {
-    int start;
-    int[] dist;
-    int[] p;
+    int start;  // the index of start vertex
+    int[] dist; // shortest length of path of each vertex
+    int[] p;    // the indexes of precursor for each vertex
 
     public DijkstraResult(int start, int len) {
         this.start = start;
