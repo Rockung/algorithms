@@ -13,8 +13,8 @@ import java.util.List;
  *   3. cut-vertex/cut-edge: Tarjan algorithm
  */
 public class AdjacentListGraph {
-    private String[] vertexes;   // vertexes of graph
-    private LinkedList[] heads;  // list of adjacent edges for each vertex
+    private String[] vertexes;            // vertexes of graph
+    private LinkedList<Integer>[] heads;  // list of adjacent edges for each vertex
 
     /**
      * Construct from vertexes
@@ -27,18 +27,17 @@ public class AdjacentListGraph {
 
         // init the heads to save code: if(heads != null)
         for (int i = 0; i < heads.length; i++) {
-            this.heads[i] = new LinkedList();
+            this.heads[i] = new LinkedList<>();
         }
     }
 
     /**
      * Add an edge to the graph
      *
-     * @param v1
-     * @param v2
-     * @throws IllegalArgumentException
+     * @param v1 the name of one edge end
+     * @param v2 the name of one edge end
      */
-    public void addEdge(String v1, String v2) throws IllegalArgumentException {
+    public void addEdge(String v1, String v2) {
         if (v1.equals(v2))
             throw new IllegalArgumentException("Vertexes are same");
 
@@ -61,8 +60,8 @@ public class AdjacentListGraph {
     /**
      * Depth-first traversal
      *
-     * @param v
-     * @return
+     * @param v the start vertex's name
+     * @return the DFS tree, a list of edges
      */
     public List<Edge> depthFirstTraverse(String v) {
         int start = indexOf(v);
@@ -84,19 +83,19 @@ public class AdjacentListGraph {
      *   2. add the first edge which end is not yet visited to the path
      *   3. recursively forward
      *
-     * @param start
-     * @param visisted
-     * @param path
+     * @param start    the start index
+     * @param visited  the array as visited marks
+     * @param path     the visited path
      */
-    private void doDepthFirstTraverse(int start, boolean[] visisted, ArrayList<Edge> path) {
-        visisted[start] = true;
+    private void doDepthFirstTraverse(int start, boolean[] visited, ArrayList<Edge> path) {
+        visited[start] = true;
 
-        LinkedList.Node node = this.heads[start].head();
+        LinkedList.Node<Integer> node = this.heads[start].head();
         while(node != null) {
             int i = node.get();
-            if (!visisted[i]) {
+            if (!visited[i]) {
                 path.add(new Edge(start, node.get()));
-                doDepthFirstTraverse(i, visisted, path);
+                doDepthFirstTraverse(i, visited, path);
             }
 
             node = node.next();
@@ -107,9 +106,10 @@ public class AdjacentListGraph {
      * Breadth-first traversal
      *   use FIFO queue to visit vertexes
      *   mark the visited vertexes
+     *   add the first visited edges to the tree
      *
-     * @param v
-     * @return
+     * @param v the start vertex's name
+     * @return the BFS tree, a list of edges
      */
     public List<Edge> breadthFirstTraverse(String v) {
         int start = indexOf(v);
@@ -124,7 +124,7 @@ public class AdjacentListGraph {
             start = queue.remove(0);
             visited[start] = true;
 
-            LinkedList.Node node = this.heads[start].head();
+            LinkedList.Node<Integer> node = this.heads[start].head();
             while (node != null) {
                 int i = node.get();
 
@@ -163,8 +163,8 @@ public class AdjacentListGraph {
     /**
      * Get the vertex name of i
      *
-     * @param i
-     * @return
+     * @param i the index
+     * @return the name of the vertex
      */
     public String indexOf(int i) {
         return this.vertexes[i];
@@ -177,7 +177,7 @@ public class AdjacentListGraph {
         for (int i = 0; i < this.heads.length; i++) {
             System.out.print(vertexes[i] + "->");
 
-            LinkedList.Node node = this.heads[i].head();
+            LinkedList.Node<Integer> node = this.heads[i].head();
             while(node != null) {
                 System.out.print(vertexes[node.get()] + " ");
                 node = node.next();

@@ -104,7 +104,7 @@ public class WeightedEdgeGraph {
         if (p == q) return false;  // To avoid a circle, do not merge
 
         for (int i = 0; i < nodesets.length; i++) {
-            if (nodesets[i] == q)  // unify the numbers of set
+            if (nodesets[i] == q)  // unify the numbers of the tree
                 nodesets[i] = p;
         }
 

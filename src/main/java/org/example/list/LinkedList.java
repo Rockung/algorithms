@@ -1,15 +1,15 @@
 package org.example.list;
 
 /**
- * Linked list
+ * Linked list with generic data type
  *   adding an element to the head or the tail
  *   repeatable elements
  *   find the first encountering element
  */
-public class LinkedList {
+public class LinkedList<T> {
 
-    private Node head;
-    private Node tail;
+    private Node<T> head;
+    private Node<T> tail;
 
     public LinkedList() {
         this.head = null;
@@ -21,7 +21,7 @@ public class LinkedList {
      *
      * @return the head
      */
-    public Node head() {
+    public Node<T> head() {
         return this.head;
     }
 
@@ -29,10 +29,10 @@ public class LinkedList {
      * add an element to the tail
      *
      * @param data
-     * @return
+     * @return the node containing the data
      */
-    public Node add(int data) {
-        Node node = new Node(data);
+    public Node<T> add(T data) {
+        Node<T> node = new Node<>(data);
 
         if (this.tail == null) {
             this.head = node;
@@ -49,10 +49,10 @@ public class LinkedList {
      * add an element to the head
      *
      * @param data
-     * @return
+     * @return the node containing the data
      */
-    public Node addBefore(int data) {
-        Node node = new Node(data);
+    public Node<T> addBefore(T data) {
+        Node<T> node = new Node<>(data);
 
         if (this.head == null) {
             this.head = node;
@@ -71,8 +71,8 @@ public class LinkedList {
      * @param data the data to be found
      * @return if found, return the node, else return null
      */
-    public Node find(int data) {
-        Node current = this.head;
+    public Node<T> find(T data) {
+        Node<T> current = this.head;
         while (current != null) {
             if (current.data == data)
                     return current;
@@ -87,7 +87,7 @@ public class LinkedList {
      * Print the list
      */
     public void printList() {
-        Node current = this.head;
+        Node<T> current = this.head;
         while (current != null) {
             System.out.print(current.data + " ");
             current = current.next;
@@ -95,39 +95,33 @@ public class LinkedList {
         System.out.println();
     }
 
-    public static class Node {
-        private int data;
-        private Node next;
+    public static class Node<T> {
+        private T data;
+        private Node<T> next;
 
-        public Node(int data) {
+        public Node(T data) {
             this.data = data;
             this.next = null;
         }
 
-        public int get() {
+        public T get() {
             return this.data;
         }
 
-        public Node next() {
+        public Node<T> next() {
             return this.next;
         }
     }
 
-    public static void main(String[] args) {
-        // test01();
-        // test02();
-        test03();
-    }
-
     private static void test01() {
-        LinkedList list = createList01();
+        LinkedList<Integer> list = createList01();
         list.printList();
     }
 
     private static void test02() {
-        LinkedList list = createList01();
+        LinkedList<Integer> list = createList01();
 
-        Node node = null;
+        Node<Integer> node = null;
 
         node = list.find(2);
         if (node != null) System.out.println("found");
@@ -138,12 +132,12 @@ public class LinkedList {
     }
 
     private static void test03() {
-        LinkedList list = createList02();
+        LinkedList<Integer> list = createList02();
         list.printList();
     }
 
     private static LinkedList createList01() {
-        LinkedList list = new LinkedList();
+        LinkedList<Integer> list = new LinkedList();
         list.add(1);
         list.add(2);
         list.add(3);
@@ -151,7 +145,7 @@ public class LinkedList {
     }
 
     private static LinkedList createList02() {
-        LinkedList list = new LinkedList();
+        LinkedList<Integer> list = new LinkedList();
         list.addBefore(1);
         list.addBefore(2);
         list.addBefore(3);
@@ -161,4 +155,9 @@ public class LinkedList {
         return list;
     }
 
+    public static void main(String[] args) {
+        // test01();
+        // test02();
+        test03();
+    }
 }
