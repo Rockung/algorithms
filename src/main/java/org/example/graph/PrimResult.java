@@ -17,6 +17,11 @@ public class PrimResult {
     int[] lowcost; // minimum costs of the selected edges
     int[] closest; // the indexes of the other ends
 
+    /**
+     *
+     * @param start the index of start vertex
+     * @param len # of vertexes
+     */
     public PrimResult(int start, int len) {
         this.start = start;
         this.lowcost = new int[len];
@@ -29,6 +34,11 @@ public class PrimResult {
         this.lowcost[start] = 0;
     }
 
+    /**
+     * Print the graph
+     *
+     * @param g the graph
+     */
     public void printResult(WeightedListGraph g) {
         int cost = 0;
         System.out.print("lowcost: ");

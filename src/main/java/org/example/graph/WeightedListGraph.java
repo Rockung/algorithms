@@ -70,7 +70,7 @@ public class WeightedListGraph {
 
         // init lowcost[] and closest[]
         // here we don't need to init lowcost[] because of default
-        // initialization in PrimResult constructor
+        // initialization in the constructor
         PrimResult result = new PrimResult(current, this.vertexes.length);
 
         while (current != -1) {

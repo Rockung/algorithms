@@ -72,55 +72,52 @@ public class WeightedMatrixGraph {
      * @return
      */
     public DijkstraResult buildShortestPath(String v) {
-        int start = indexOf(v);
-        if (start == -1) return null;
+        int current = indexOf(v);
+        if (current == -1) return null;
 
-        DijkstraResult result = new DijkstraResult(start, this.vertexes.length);
-
-        // init V-S
-        ArrayList<Integer> V_S = new ArrayList<>();
-        for (int i = 0; i < this.vertexes.length ; i++) {
-            if (i != start) V_S.add(i);
-        }
+        // init S, V-S
+        // all vertexes are in the V, so at the beginning, S is empty
+        boolean[] S = new boolean[this.vertexes.length];
 
         // init dist[] and p[]
-        for (int i = 0; i < this.edgeMatrix[0].length; i++) {
-            result.dist[i] = this.edgeMatrix[start][i];
-            result.p[i] = this.edgeMatrix[start][i] < Integer.MAX_VALUE ? start : -1;
-            result.p[start] = -1;
-        }
+        // here we don't need to init dist[] and p[] because of the default
+        // initialization in the constructor
+        DijkstraResult result = new DijkstraResult(current, this.vertexes.length);
 
-        // loop until V-S is empty
-        while(!V_S.isEmpty()) {
-            // get the minimum value and its index
+        // loop until no index is found
+        while(current != -1) {
+            // remove from V-S, add to S set
+            S[current] = true;
+
+            // 1. update dist[] and p[] using current adjacent edges
+            // 2. find the index of least dist
             int index = -1;
             int min = Integer.MAX_VALUE;
-            for (int i: V_S) {
-                // equal sign help avoiding infinite loop
+            for (int i = 0; i < S.length; i++ ) {
+                // exclude S set
+                if (S[i]) continue;
+
+                // 1. update dist[] and p[] once a time
+                if (this.edgeMatrix[current][i] < Integer.MAX_VALUE)  { // avoid overflow
+                    if (result.dist[current] < Integer.MAX_VALUE) {     // avoid overflow
+                        int dist = result.dist[current] + this.edgeMatrix[current][i];
+                        // if shorter, update
+                        if ( dist < result.dist[i]) {
+                            result.dist[i] = dist;
+                            result.p[i] = current;
+                        }
+                    }
+                }
+
+                // 2. find the index of least dist
                 if (result.dist[i] <= min) {
                     min = result.dist[i];
                     index = i;
                 }
             }
 
-            // equal sign guarantees index is not -1
-            // if (index == -1) continue;
-
-            // remove the index from V_S
-            V_S.remove(new Integer(index));
-
-            // update dist[] and p[] of vertexes in the V-S
-            for (int i: V_S) {
-                if (this.edgeMatrix[index][i] < Integer.MAX_VALUE)  { // avoid overflow
-                    if (result.dist[index] < Integer.MAX_VALUE) {     // avoid overflow
-                        int dist = result.dist[index] + this.edgeMatrix[index][i];
-                        if (result.dist[i] > dist) {  // if shorter, update
-                            result.dist[i] = dist;
-                            result.p[i] = index;
-                        }
-                    }
-                }
-            }
+            // go to next vertex
+            current = index;
         }
 
         return result;
@@ -174,6 +171,23 @@ public class WeightedMatrixGraph {
     }
 
     private static WeightedMatrixGraph createGraph01() {
+        WeightedMatrixGraph g = new WeightedMatrixGraph(new String[] {
+                "1", "2", "3", "4", "5"
+        });
+
+        g.addEdge("1", "5", 4);
+        g.addEdge("1", "4", 2);
+        g.addEdge("2", "1", 6);
+        g.addEdge("2", "4", 2);
+        g.addEdge("3", "2", 2);
+        g.addEdge("3", "4", 5);
+        g.addEdge("4", "1", 7);
+        g.addEdge("4", "5", 1);
+
+        return g;
+    }
+
+    private static WeightedMatrixGraph createGraph02() {
         WeightedMatrixGraph graph = new WeightedMatrixGraph(new String[] {
            "a", "b", "c", "d", "e", "f", "g", "h"
         });
@@ -194,36 +208,20 @@ public class WeightedMatrixGraph {
         return graph;
     }
 
-    private static WeightedMatrixGraph createGraph02() {
-        WeightedMatrixGraph g = new WeightedMatrixGraph(new String[] {
-           "0", "1", "2", "3", "4"
-        });
-
-        g.addEdge("0", "4", 4);
-        g.addEdge("0", "3", 2);
-        g.addEdge("1", "0", 6);
-        g.addEdge("1", "3", 2);
-        g.addEdge("2", "1", 2);
-        g.addEdge("2", "3", 5);
-        g.addEdge("3", "0", 7);
-        g.addEdge("3", "4", 1);
-
-        return g;
-    }
-
     private static void test01() {
         WeightedMatrixGraph graph = createGraph01();
-        graph.printGraph();
+        DijkstraResult result = graph.buildShortestPath("3");
+        result.printResult(graph);
     }
 
     private static void test02() {
-        WeightedMatrixGraph graph = createGraph01();
+        WeightedMatrixGraph graph = createGraph02();
         DijkstraResult result = graph.buildShortestPath("a");
         result.printResult(graph);
     }
 
     public static void main(String[] args) {
-        // test01();
-        test02();
+        test01();
+        // test02();
     }
 }
