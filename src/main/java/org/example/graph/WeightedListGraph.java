@@ -1,6 +1,7 @@
 package org.example.graph;
 
 import org.example.list.LinkedList;
+import org.example.list.Stack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,18 +9,34 @@ import java.util.List;
 
 /**
  * Use linked list to represent weighted graph
+ *   support undirected and directed graph
+ *   support weighted graph
  *
  * Prim Algorithm
  *   a solution to minimum spanning tree for graph
  *   dense graph
+ *
+ * Topology Sorting
+ *
  */
 public class WeightedListGraph {
-    private String[] vertexes;
-    private LinkedList<Vertex>[] heads;
+    private boolean directed = false;   // undirected or directed graph
+    private String[] vertexes;          // vertexes of graph
+    private int[] inDegrees;            // degrees of coming in
+    private int[] outDegrees;           // degrees of going out
+    private LinkedList<Vertex>[] heads; // going-out edges of each vertex
 
     public WeightedListGraph(String[] vertexes) {
-        this.vertexes = Arrays.copyOf(vertexes, vertexes.length);
-        this.heads = new LinkedList[vertexes.length];
+        this(vertexes, false);
+    }
+
+    public WeightedListGraph(String[] vertexes, boolean directed) {
+        int len = vertexes.length;
+        this.vertexes = Arrays.copyOf(vertexes, len);
+        this.inDegrees = new int[len];
+        this.outDegrees = new int[len];
+        this.heads = new LinkedList[len];
+        this.directed = directed;
 
         // init the heads to save code: if(heads != null)
         for (int i = 0; i < heads.length; i++) {
@@ -28,30 +45,55 @@ public class WeightedListGraph {
     }
 
     /**
+     * Add an edge to the graph in a normal order
+     *
+     * @param from   the name of from end
+     * @param to     the name of to end
+     * @param weight the weight of the edge
+     */
+    public void addEdge(String from, String to, int weight) {
+        addEdge(from, to, weight, false);
+    }
+
+    /**
      * Add an edge to the graph
      *
-     * @param v1 the name of one edge end
-     * @param v2 the name of one edge end
-     * @param weight
+     * @param from   the name of from end
+     * @param to     the name of to end
+     * @param weight the weight of the edge
+     * @param inverse insert into the list inversely
      */
-    public void addEdge(String v1, String v2, int weight) {
-        if (v1.equals(v2))
+    public void addEdge(String from, String to, int weight, boolean inverse) {
+        if (from.equals(to))
             throw new IllegalArgumentException("Vertexes are same");
 
-        // get the indexes of v1 and v2
+        // get the indexes of from and to ends
         int index1 = -1;
         int index2 = -1;
         for (int i = 0; i < vertexes.length; i++) {
-            if (v1.equals(vertexes[i])) index1 = i;
-            if (v2.equals(vertexes[i])) index2 = i;
+            if (from.equals(vertexes[i])) index1 = i;
+            if (to.equals(vertexes[i])) index2 = i;
         }
 
         if (index1 == -1 || index2 == -1)
             throw new IllegalArgumentException("Vertexes are not exist.");
 
-        // add to the linked lists
-        heads[index1].add(new Vertex(index2, weight));
-        heads[index2].add(new Vertex(index1, weight));
+        // add to the linked lists and update in/out degrees
+        if (inverse)
+            heads[index1].addBefore(new Vertex(index2, weight));
+        else
+            heads[index1].add(new Vertex(index2, weight));
+        outDegrees[index1]++;
+        inDegrees[index2]++;
+
+        if (!directed) {
+            if (inverse)
+                heads[index2].addBefore(new Vertex(index1, weight));
+            else
+                heads[index2].add(new Vertex(index1, weight));
+            outDegrees[index2]++;
+            inDegrees[index1]++;
+        }
     }
 
     /**
@@ -110,6 +152,46 @@ public class WeightedListGraph {
     }
 
     /**
+     * Build a topology sorting
+     *   the graph should be built inversely
+     *   check in-degrees repeatedly
+     */
+    public TopologyResult buildTopologySorting() {
+        int[] ins = Arrays.copyOf(this.inDegrees, this.inDegrees.length);
+        TopologyResult result = new TopologyResult(this.vertexes.length);
+        Stack<Integer> stack = new Stack<>();
+
+        // start from the vertexes which in-degree is zero
+        for (int i = 0; i < ins.length; i++) {
+            if (ins[i] == 0) stack.push(i);
+        }
+
+        // loop until catching an exception because popping stack
+        while(true) {
+            try {
+                int i = stack.pop();
+                result.add(i);
+
+                LinkedList.Node<Vertex> node = this.heads[i].head();
+                while(node != null) {
+                    int j = node.get().index;
+
+                    // decrease, if zero, push onto stack
+                    ins[j]--;
+                    if (ins[j] == 0) stack.push(j);
+
+                    node = node.next();
+                }
+
+            } catch (IllegalStateException e) {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Get the index of vertex v
      *
      * @param v the vertex name
@@ -155,9 +237,12 @@ public class WeightedListGraph {
         }
     }
 
+    /**
+     * The other end of one vertex in the list
+     */
     private static class Vertex {
-        int index;
-        int weight;
+        int index;  // the index in the vertex array
+        int weight; // the weight of the edge
 
         public Vertex(int index, int weight) {
             this.index = index;
@@ -165,6 +250,7 @@ public class WeightedListGraph {
         }
     }
 
+    // for Prim MST
     private static WeightedListGraph createGraph01() {
         WeightedListGraph g = new WeightedListGraph(new String[] {
                 "1", "2", "3", "4", "5", "6", "7"
@@ -187,6 +273,24 @@ public class WeightedListGraph {
         return g;
     }
 
+    // To build topology sorting, the graph should be built inversely
+    public static WeightedListGraph createGraph02() {
+        WeightedListGraph g = new WeightedListGraph(new String[] {
+                "C0", "C1", "C2", "C3", "C4", "C5"
+        }, true);
+
+        g.addEdge("C0", "C1", 1, true);
+        g.addEdge("C0", "C2", 1, true);
+        g.addEdge("C0", "C3", 1, true);
+        g.addEdge("C2", "C1", 1, true);
+        g.addEdge("C2", "C4", 1, true);
+        g.addEdge("C3", "C4", 1, true);
+        g.addEdge("C5", "C3", 1, true);
+        g.addEdge("C5", "C4", 1, true);
+
+        return g;
+    }
+
     private static void test01() {
         WeightedListGraph g = createGraph01();
         g.printGraph();
@@ -198,8 +302,15 @@ public class WeightedListGraph {
         r.printResult(g);
     }
 
+    private static void test03() {
+        WeightedListGraph g = createGraph02();
+        TopologyResult r = g.buildTopologySorting();
+        r.printResult(g);
+    }
+
     public static void main(String[] args) {
         // test01();
-        test02();
+        // test02();
+        test03(); // 502134
     }
 }
