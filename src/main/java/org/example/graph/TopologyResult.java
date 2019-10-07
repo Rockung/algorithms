@@ -1,8 +1,8 @@
 package org.example.graph;
 
 public class TopologyResult {
-    int p;           // a pointer for next index
-    int[] topology;  // indexes for the result
+    int p;       // a pointer for next index
+    int[] order; // indexes for the result
 
     /**
      *
@@ -10,15 +10,18 @@ public class TopologyResult {
      */
     public TopologyResult(int len) {
         this.p = 0;
-        this.topology = new int[len];
+        this.order = new int[len];
     }
 
     /**
      * add an index into the result
-     * @param i
+     * @param i the index of vertex
      */
     public void add(int i) {
-        this.topology[p++] = i;
+        if (p >= this.order.length)
+            throw new IndexOutOfBoundsException("Out of bounds when adding");
+
+        this.order[p++] = i;
     }
 
     /**
@@ -26,14 +29,14 @@ public class TopologyResult {
      * @param g the graph the result is for
      */
     public void printResult(WeightedListGraph g) {
-        if (this.p != this.topology.length) {
+        if (this.p != this.order.length) {
             System.out.println("The graph has a circle.");
             return;
         }
 
         System.out.println("Topology sorting: ");
-        for (int i = 0; i < this.topology.length; i++) {
-            System.out.printf("%s ", g.indexOf(this.topology[i]));
+        for (int i = 0; i < this.order.length; i++) {
+            System.out.printf("%s ", g.indexOf(this.order[i]));
         }
         System.out.println();
     }

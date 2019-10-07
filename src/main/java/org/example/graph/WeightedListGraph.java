@@ -3,9 +3,7 @@ package org.example.graph;
 import org.example.list.LinkedList;
 import org.example.list.Stack;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Use linked list to represent weighted graph
@@ -156,7 +154,7 @@ public class WeightedListGraph {
      *   the graph should be built inversely
      *   check in-degrees repeatedly
      */
-    public TopologyResult buildTopologySorting() {
+    public TopologyResult buildTopologicOrder() {
         int[] ins = Arrays.copyOf(this.inDegrees, this.inDegrees.length);
         TopologyResult result = new TopologyResult(this.vertexes.length);
         Stack<Integer> stack = new Stack<>();
@@ -291,6 +289,23 @@ public class WeightedListGraph {
         return g;
     }
 
+    private static WeightedListGraph createGraph03() {
+        WeightedListGraph g = new WeightedListGraph(new String[] {
+                "V0", "V1", "V2", "V3", "V4", "V5"
+        }, true);
+
+        g.addEdge("V0", "V1", 2, true);
+        g.addEdge("V0", "V2", 15, true);
+        g.addEdge("V1", "V3", 10, true);
+        g.addEdge("V1", "V4", 19, true);
+        g.addEdge("V2", "V1", 4, true);
+        g.addEdge("V2", "V4", 11, true);
+        g.addEdge("V3", "V5", 6, true);
+        g.addEdge("V4", "V5", 5, true);
+
+        return g;
+    }
+
     private static void test01() {
         WeightedListGraph g = createGraph01();
         g.printGraph();
@@ -304,7 +319,13 @@ public class WeightedListGraph {
 
     private static void test03() {
         WeightedListGraph g = createGraph02();
-        TopologyResult r = g.buildTopologySorting();
+        TopologyResult r = g.buildTopologicOrder();
+        r.printResult(g);
+    }
+
+    private static void test04() {
+        WeightedListGraph g = createGraph03();
+        TopologyResult r = g.buildTopologicOrder();
         r.printResult(g);
     }
 
@@ -312,5 +333,6 @@ public class WeightedListGraph {
         // test01();
         // test02();
         test03(); // 502134
+        test04(); // 021345
     }
 }
