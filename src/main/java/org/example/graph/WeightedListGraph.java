@@ -3,7 +3,9 @@ package org.example.graph;
 import org.example.list.LinkedList;
 import org.example.list.Stack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Use linked list to represent weighted graph
@@ -15,14 +17,20 @@ import java.util.Arrays;
  *   dense graph
  *
  * Topology Sorting
+ *   find a topologic order in an AOV network
  *
+ * Critical Path
+ *  find the critical path in an AOE network
  */
 public class WeightedListGraph {
     private boolean directed = false;   // undirected or directed graph
     private String[] vertexes;          // vertexes of graph
-    private int[] inDegrees;            // degrees of coming in
+    private int[] inDegrees;            // degrees of coming in for topology sorting
     private int[] outDegrees;           // degrees of going out
     private LinkedList<Vertex>[] heads; // going-out edges of each vertex
+
+    // for critical path, get the coming-in edges
+    private LinkedList<Vertex>[] inverse_heads; // to compute ve[]
 
     public WeightedListGraph(String[] vertexes) {
         this(vertexes, false);
@@ -36,9 +44,12 @@ public class WeightedListGraph {
         this.heads = new LinkedList[len];
         this.directed = directed;
 
+        this.inverse_heads = new LinkedList[len];
+
         // init the heads to save code: if(heads != null)
         for (int i = 0; i < heads.length; i++) {
             this.heads[i] = new LinkedList<>();
+            this.inverse_heads[i] = new LinkedList<>();
         }
     }
 
@@ -77,18 +88,24 @@ public class WeightedListGraph {
             throw new IllegalArgumentException("Vertexes are not exist.");
 
         // add to the linked lists and update in/out degrees
-        if (inverse)
+        if (inverse) {
             heads[index1].addBefore(new Vertex(index2, weight));
-        else
+            // for critical path, get the coming-in edges
+            inverse_heads[index2].addBefore(new Vertex(index1, weight));
+        } else {
             heads[index1].add(new Vertex(index2, weight));
+            // for critical path, get the coming-in edges
+            inverse_heads[index2].add(new Vertex(index1, weight));
+        }
         outDegrees[index1]++;
         inDegrees[index2]++;
 
         if (!directed) {
-            if (inverse)
+            if (inverse) {
                 heads[index2].addBefore(new Vertex(index1, weight));
-            else
+            } else {
                 heads[index2].add(new Vertex(index1, weight));
+            }
             outDegrees[index2]++;
             inDegrees[index1]++;
         }
@@ -151,7 +168,6 @@ public class WeightedListGraph {
 
     /**
      * Build a topology sorting
-     *   the graph should be built inversely
      *   check in-degrees repeatedly
      */
     public TopologyResult buildTopologicOrder() {
@@ -187,6 +203,99 @@ public class WeightedListGraph {
         }
 
         return result;
+    }
+
+    /**
+     * Build the critical path for graph
+     *
+     * @return a list of edges in the critical path
+     */
+    public List<Edge> buildCriticalPath() {
+        TopologyResult r = buildTopologicOrder();
+        if (!r.isValid()) return null;
+
+        // ve[] and vl[] are based on # of vertexes
+        int len = this.vertexes.length;
+
+        // compute ve[]
+        int[] ve = new int[len];
+        // init the source to zero
+        ve[r.order[0]] = 0;
+        // loop in topologic order
+        for (int i = 1; i < len; i++) {
+            // get the index from topologic result
+            int j = r.order[i];
+
+            // query in the inverse heads
+            LinkedList.Node<Vertex> node = this.inverse_heads[j].head();
+
+            // get the maximum from the coming-in edges
+            int max = 0;
+            while(node != null) {
+                int k = node.get().index;
+
+                int weight = ve[k] + node.get().weight;
+                if (max < weight) max = weight;
+
+                node = node.next();
+            }
+
+            // fill the maximum
+            ve[j] = max;
+        }
+
+        // compute vl[]
+        int[] vl = new int[len];
+        // init vl of the sink to ve of the sink
+        vl[r.order[len-1]] = ve[r.order[len-1]];
+        // loop in the inversion of topologic order
+        for (int i = len-2; i >= 0; i--) {
+            // get the index from topologic result
+            int j = r.order[i];
+
+            // query in the normal heads
+            LinkedList.Node<Vertex> node = this.heads[j].head();
+
+            // get the minimum from the out-going edges
+            int min = Integer.MAX_VALUE;
+            while(node != null) {
+                int k = node.get().index;
+
+                int weight = vl[k] - node.get().weight;
+                if (weight < min) min = weight;
+
+                node = node.next();
+            }
+
+            // fill the minimum
+            vl[j] = min;
+        }
+
+        // compute e[] and l[], check the critical edges
+        // do not need to create e[] and l[], just iterate on each vertex
+        // and its out-going edges
+        List<Edge> edges = new ArrayList<>();
+        for (int i = 0; i < len; i++) {
+            // get the index from topologic result
+            int j = r.order[i];
+
+            // query in the normal heads
+            LinkedList.Node<Vertex> node = this.heads[j].head();
+
+            while(node != null) {
+                int k = node.get().index;
+                int weight = node.get().weight;
+
+                // j -> k
+                // e[j] == l[j]
+                if (ve[j] == vl[k] - weight)
+                    edges.add(new Edge(j, k, weight));
+
+                node = node.next();
+            }
+        }
+
+        return edges;
     }
 
     /**
@@ -296,8 +405,8 @@ public class WeightedListGraph {
 
         g.addEdge("V0", "V1", 2, true);
         g.addEdge("V0", "V2", 15, true);
-        g.addEdge("V1", "V3", 10, true);
         g.addEdge("V1", "V4", 19, true);
+        g.addEdge("V1", "V3", 10, true);
         g.addEdge("V2", "V1", 4, true);
         g.addEdge("V2", "V4", 11, true);
         g.addEdge("V3", "V5", 6, true);
@@ -329,10 +438,21 @@ public class WeightedListGraph {
         r.printResult(g);
     }
 
+    private static void test05() {
+        WeightedListGraph g = createGraph03();
+        List<Edge> edges = g.buildCriticalPath();
+        System.out.print("Critical Path: \n\t");
+        for (Edge e: edges) {
+            System.out.printf("%s->%s(%d) ", g.indexOf(e.v1), g.indexOf(e.v2), e.weight);
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) {
         // test01();
         // test02();
-        test03(); // 502134
-        test04(); // 021345
+        // test03(); // 502134
+        // test04(); // 021345
+        test05();
     }
 }

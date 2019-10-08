@@ -25,6 +25,14 @@ public class TopologyResult {
     }
 
     /**
+     *
+     * @return whether getting the right result
+     */
+    public boolean isValid() {
+        return this.p == this.order.length;
+    }
+
+    /**
      * print the graph
      * @param g the graph the result is for
      */
