@@ -148,16 +148,20 @@ public class WeightedListGraph {
                         result.lowcost[vt.index] = vt.weight;
                         result.closest[vt.index] = current;
                     }
-
-                    // find the smallest vertex
-                    if (result.lowcost[vt.index] < leastWeight) {
-                        leastWeight = result.lowcost[vt.index];
-                        leastIndex = vt.index;
-                    }
                 }
 
                 node = node.next();
             } // for each adjacent edge
+
+            // find the smallest vertex
+            for (int i = 0; i < U.length ; i++) {
+                if (!U[i]) {
+                    if (result.lowcost[i] < leastWeight) {
+                        leastWeight = result.lowcost[i];
+                        leastIndex = i;
+                    }
+                }
+            }
 
             // for each step, select the edge with least weight
             current = leastIndex;
@@ -450,9 +454,9 @@ public class WeightedListGraph {
 
     public static void main(String[] args) {
         // test01();
-        // test02();
+        test02();
         // test03(); // 502134
         // test04(); // 021345
-        test05();
+        // test05();
     }
 }
