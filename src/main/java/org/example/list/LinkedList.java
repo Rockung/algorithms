@@ -1,12 +1,15 @@
 package org.example.list;
 
+import java.util.Iterator;
+
 /**
  * Linked list with generic data type
  *   adding an element to the head or the tail
  *   repeatable elements
  *   find the first encountering element
+ *   enhanced for loop
  */
-public class LinkedList<T> {
+public class LinkedList<T> implements List<T> {
 
     private Node<T> head;
     private Node<T> tail;
@@ -17,21 +20,12 @@ public class LinkedList<T> {
     }
 
     /**
-     * Get the head of the list
-     *
-     * @return the head
-     */
-    public Node<T> head() {
-        return this.head;
-    }
-
-    /**
      * add an element to the tail
      *
      * @param data
-     * @return the node containing the data
      */
-    public Node<T> add(T data) {
+    @Override
+    public void add(T data) {
         Node<T> node = new Node<>(data);
 
         if (this.tail == null) {
@@ -41,17 +35,15 @@ public class LinkedList<T> {
             this.tail.next = node;
             this.tail = node;
         }
-
-        return node;
     }
 
     /**
      * add an element to the head
      *
      * @param data
-     * @return the node containing the data
      */
-    public Node<T> addBefore(T data) {
+    @Override
+    public void addBefore(T data) {
         Node<T> node = new Node<>(data);
 
         if (this.head == null) {
@@ -61,26 +53,24 @@ public class LinkedList<T> {
             node.next = this.head;
             this.head = node;
         }
-
-        return node;
     }
 
     /**
-     * Find a node
+     * Check whether the list contains the data
      *
-     * @param data the data to be found
-     * @return if found, return the node, else return null
+     * @param data the data to be checked
      */
-    public Node<T> find(T data) {
+    @Override
+    public boolean contains(T data) {
         Node<T> current = this.head;
         while (current != null) {
             if (current.data == data)
-                    return current;
+                    return true;
 
             current = current.next;
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -95,21 +85,58 @@ public class LinkedList<T> {
         System.out.println();
     }
 
-    public static class Node<T> {
+    @Override
+    public boolean isEmpty() {
+        return this.head == null;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new ListItr(this.head).iterator();
+    }
+
+    /**
+     * support enhanced for loop
+     *
+     * @param <T> the type of data
+     */
+    private static class ListItr<T> implements Iterable<T> {
+        private Node<T> current;
+
+        public ListItr(Node<T> head) {
+            this.current = head;
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return new Iterator<T>() {
+                @Override
+                public boolean hasNext() {
+                    return current != null;
+                }
+
+                @Override
+                public T next() {
+                    Node<T> r = current;
+                    current = current.next;
+                    return r.data;
+                }
+            };
+        }
+    }
+
+    /**
+     * package data into a node in the list
+     *
+     * @param <T> the type of the data
+     */
+    private static class Node<T> {
         private T data;
         private Node<T> next;
 
         public Node(T data) {
             this.data = data;
             this.next = null;
-        }
-
-        public T get() {
-            return this.data;
-        }
-
-        public Node<T> next() {
-            return this.next;
         }
     }
 
@@ -121,19 +148,21 @@ public class LinkedList<T> {
     private static void test02() {
         LinkedList<Integer> list = createList01();
 
-        Node<Integer> node = null;
-
-        node = list.find(2);
-        if (node != null) System.out.println("found");
-
-        node = list.find(4);
-        if (node == null) System.out.println("not found");
-
+        if (list.contains(2)) System.out.println("found");
+        if (list.contains(4)) System.out.println("not found");
     }
 
     private static void test03() {
         LinkedList<Integer> list = createList02();
         list.printList();
+    }
+
+    private static void test04() {
+        List<Integer> list = createList02();
+
+        for(int i: list) {
+            System.out.println(i);
+        }
     }
 
     private static LinkedList createList01() {
@@ -158,6 +187,7 @@ public class LinkedList<T> {
     public static void main(String[] args) {
         // test01();
         // test02();
-        test03();
+        // test03();
+        test04();
     }
 }

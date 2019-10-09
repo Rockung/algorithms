@@ -1,11 +1,10 @@
 package org.example.graph;
 
+import org.example.list.List;
 import org.example.list.LinkedList;
 import org.example.list.Stack;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Use linked list to represent weighted graph
@@ -136,12 +135,10 @@ public class WeightedListGraph {
 
             // update lowcost[] and closest[] in V-U
             // find the index of vertex with least weight
+
             int leastIndex = -1; // the index of vertex with least weight
             int leastWeight = Integer.MAX_VALUE;
-            LinkedList.Node<Vertex> node = this.heads[current].head();
-            while(node != null) { // for each adjacent edge
-                Vertex vt = node.get();
-
+            for (Vertex vt: this.heads[current]) {
                 if (!U[vt.index]) { // the vertex is in V-U
                     // update lowcost[] and closest[]
                     if (vt.weight < result.lowcost[vt.index]) {
@@ -149,9 +146,7 @@ public class WeightedListGraph {
                         result.closest[vt.index] = current;
                     }
                 }
-
-                node = node.next();
-            } // for each adjacent edge
+            }
 
             // find the smallest vertex
             for (int i = 0; i < U.length ; i++) {
@@ -190,17 +185,13 @@ public class WeightedListGraph {
                 int i = stack.pop();
                 result.add(i);
 
-                LinkedList.Node<Vertex> node = this.heads[i].head();
-                while(node != null) {
-                    int j = node.get().index;
+                for (Vertex v: this.heads[i]) {
+                    int j = v.index;
 
                     // decrease, if zero, push onto stack
                     ins[j]--;
                     if (ins[j] == 0) stack.push(j);
-
-                    node = node.next();
                 }
-
             } catch (IllegalStateException e) {
                 break;
             }
@@ -231,17 +222,11 @@ public class WeightedListGraph {
             int j = r.order[i];
 
             // query in the inverse heads
-            LinkedList.Node<Vertex> node = this.inverse_heads[j].head();
-
             // get the maximum from the coming-in edges
             int max = 0;
-            while(node != null) {
-                int k = node.get().index;
-
-                int weight = ve[k] + node.get().weight;
+            for (Vertex v: this.inverse_heads[j]) {
+                int weight = ve[v.index] + v.weight;
                 if (max < weight) max = weight;
-
-                node = node.next();
             }
 
             // fill the maximum
@@ -258,17 +243,11 @@ public class WeightedListGraph {
             int j = r.order[i];
 
             // query in the normal heads
-            LinkedList.Node<Vertex> node = this.heads[j].head();
-
             // get the minimum from the out-going edges
             int min = Integer.MAX_VALUE;
-            while(node != null) {
-                int k = node.get().index;
-
-                int weight = vl[k] - node.get().weight;
+            for (Vertex v: this.heads[j]) {
+                int weight = vl[v.index] - v.weight;
                 if (weight < min) min = weight;
-
-                node = node.next();
             }
 
             // fill the minimum
@@ -278,24 +257,20 @@ public class WeightedListGraph {
         // compute e[] and l[], check the critical edges
         // do not need to create e[] and l[], just iterate on each vertex
         // and its out-going edges
-        List<Edge> edges = new ArrayList<>();
+        List<Edge> edges = new LinkedList<>();
         for (int i = 0; i < len; i++) {
             // get the index from topologic result
             int j = r.order[i];
 
             // query in the normal heads
-            LinkedList.Node<Vertex> node = this.heads[j].head();
-
-            while(node != null) {
-                int k = node.get().index;
-                int weight = node.get().weight;
+            for (Vertex v: this.heads[j]) {
+                int k = v.index;
+                int weight = v.weight;
 
                 // j -> k
                 // e[j] == l[j]
                 if (ve[j] == vl[k] - weight)
                     edges.add(new Edge(j, k, weight));
-
-                node = node.next();
             }
         }
 
@@ -337,11 +312,8 @@ public class WeightedListGraph {
         for (int i = 0; i < this.heads.length; i++) {
             System.out.print(vertexes[i] + "->");
 
-            LinkedList.Node<Vertex> node = this.heads[i].head();
-            while(node != null) {
-                Vertex v = node.get();
+            for (Vertex v: this.heads[i]) {
                 System.out.printf("%s(%d) ", indexOf(v.index) , v.weight);
-                node = node.next();
             }
 
             System.out.println();

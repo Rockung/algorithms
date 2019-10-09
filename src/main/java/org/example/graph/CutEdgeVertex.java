@@ -1,7 +1,7 @@
 package org.example.graph;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.example.list.List;
+import org.example.list.LinkedList;
 
 /**
  * cut-edge and cut-vertex for graph
@@ -11,7 +11,7 @@ public class CutEdgeVertex {
     List<Integer> cutVertexes; // list of cut-vertexes
 
     public CutEdgeVertex() {
-        this.cutEdges = new ArrayList<>();
-        this.cutVertexes = new ArrayList<>();
+        this.cutEdges = new LinkedList<>();
+        this.cutVertexes = new LinkedList<>();
     }
 }

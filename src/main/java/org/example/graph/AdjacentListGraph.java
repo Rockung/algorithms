@@ -1,10 +1,10 @@
 package org.example.graph;
 
 import org.example.list.LinkedList;
+import org.example.list.List;
+import org.example.list.Queue;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Use linked list to represent a graph
@@ -65,10 +65,10 @@ public class AdjacentListGraph {
      */
     public List<Edge> depthFirstTraverse(String v) {
         int start = indexOf(v);
-        if (start == -1) return new ArrayList<>();
+        if (start == -1) return new LinkedList<>();
 
         // prepare for recursive call
-        ArrayList<Edge> path = new ArrayList<>();
+        List<Edge> path = new LinkedList<>();
         boolean[] visited = new boolean[vertexes.length];
 
         // do depth-first searching
@@ -87,18 +87,14 @@ public class AdjacentListGraph {
      * @param visited  the array as visited marks
      * @param path     the visited path
      */
-    private void doDepthFirstTraverse(int start, boolean[] visited, ArrayList<Edge> path) {
+    private void doDepthFirstTraverse(int start, boolean[] visited, List<Edge> path) {
         visited[start] = true;
 
-        LinkedList.Node<Integer> node = this.heads[start].head();
-        while(node != null) {
-            int i = node.get();
+        for (int i: this.heads[start]) {
             if (!visited[i]) {
-                path.add(new Edge(start, node.get()));
+                path.add(new Edge(start, i));
                 doDepthFirstTraverse(i, visited, path);
             }
-
-            node = node.next();
         }
     }
 
@@ -113,29 +109,24 @@ public class AdjacentListGraph {
      */
     public List<Edge> breadthFirstTraverse(String v) {
         int start = indexOf(v);
-        if (start == -1) return new ArrayList<>();
+        if (start == -1) return new LinkedList<>();
 
-        ArrayList<Edge> path = new ArrayList<>();
-        ArrayList<Integer> queue = new ArrayList<>();
+        List<Edge> path = new LinkedList<>();
+        Queue<Integer> queue = new Queue<>();
         boolean[] visited = new boolean[vertexes.length];
 
-        queue.add(start);
+        queue.enQueue(start);
         while(!queue.isEmpty()) {
-            start = queue.remove(0);
+            start = queue.deQueue();
             visited[start] = true;
 
-            LinkedList.Node<Integer> node = this.heads[start].head();
-            while (node != null) {
-                int i = node.get();
-
+            for (int i: this.heads[start]) {
                 if (!visited[i]) { // not visited yet
                     visited[i] = true;
                     path.add(new Edge(start, i));
 
-                    queue.add(i); // add to the queue for the next loop
+                    queue.enQueue(i); // add to the queue for the next loop
                 }
-
-                node = node.next();
             }
         }
 
@@ -177,10 +168,8 @@ public class AdjacentListGraph {
         for (int i = 0; i < this.heads.length; i++) {
             System.out.print(vertexes[i] + "->");
 
-            LinkedList.Node<Integer> node = this.heads[i].head();
-            while(node != null) {
-                System.out.print(vertexes[node.get()] + " ");
-                node = node.next();
+            for (int j: this.heads[i]) {
+                System.out.print(vertexes[j] + " ");
             }
 
             System.out.println();

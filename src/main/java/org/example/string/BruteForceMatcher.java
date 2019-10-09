@@ -1,16 +1,16 @@
 package org.example.string;
 
-public class ViolentMatcher {
+public class BruteForceMatcher {
     private String text;
 
     public static void main(String[] args) {
-        ViolentMatcher matcher = new ViolentMatcher("Hello, world!");
+        BruteForceMatcher matcher = new BruteForceMatcher("Hello, world!");
         System.out.println(matcher.match("Hello"));
         System.out.println(matcher.match("world"));
         System.out.println(matcher.match("world?"));
     }
 
-    public ViolentMatcher(String text) {
+    public BruteForceMatcher(String text) {
         this.text = text;
     }
 

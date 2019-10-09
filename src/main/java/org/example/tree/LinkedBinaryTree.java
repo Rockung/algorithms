@@ -1,6 +1,6 @@
 package org.example.tree;
 
-import java.util.ArrayList;
+import org.example.list.Queue;
 
 /**
  *  A binary tree is an ordered tree with the following properties:
@@ -97,14 +97,14 @@ public class LinkedBinaryTree {
             return;
         }
 
-        ArrayList<Node> nodeList = new ArrayList<>();
-        nodeList.add(this.root);
-        while(!nodeList.isEmpty()) {
-            Node node = nodeList.remove(0);
+        Queue<Node> queue = new Queue<>();
+        queue.enQueue(this.root);
+        while(!queue.isEmpty()) {
+            Node node = queue.deQueue();
             System.out.print(node.data + " ");
 
-            if (node.left != null) nodeList.add(node.left);
-            if (node.right != null) nodeList.add(node.right);
+            if (node.left != null) queue.enQueue(node.left);
+            if (node.right != null) queue.enQueue(node.right);
         }
     }
 
