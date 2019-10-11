@@ -1,12 +1,12 @@
 package org.example.tree;
 
-public class BinarySortTree {
+public class BinarySearchTree {
     private Node root;
 
     public static void main(String[] args) {
         int[] arr = {7, 3, 10, 12, 5, 1, 9};
 
-        BinarySortTree tree = new BinarySortTree();
+        BinarySearchTree tree = new BinarySearchTree();
         for (int val : arr) {
             tree.add(val);
         }

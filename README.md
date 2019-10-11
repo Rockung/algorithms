@@ -22,7 +22,7 @@ Linked list, Queue, Stack
 
 ## Tree
 
-Binary search tree, AVL tree, Huffman tree and code
+Binary search tree, AVL tree, Huffman tree, Huffman code,  max-heap, and priority queue
 
 ## Graph
 
