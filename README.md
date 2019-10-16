@@ -54,3 +54,9 @@ performance comparison
 
 add more examples
 
+## Resources
+
+* https://www.bilibili.com/video/av59600020
+* https://www.bilibili.com/video/av31429998
+* https://www.bilibili.com/video/av60287175
+* https://www.bilibili.com/video/av47473308
