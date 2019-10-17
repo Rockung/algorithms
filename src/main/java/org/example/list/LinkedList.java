@@ -3,20 +3,40 @@ package org.example.list;
 import java.util.Iterator;
 
 /**
- * Linked list with generic data type
+ * Linked single list with generic data type
  *   adding an element to the head or the tail
  *   repeatable elements
  *   find the first encountering element
  *   enhanced for loop
  */
-public class LinkedList<T> implements List<T> {
+public class LinkedList<E> implements List<E> {
 
-    private Node<T> head;
-    private Node<T> tail;
+    // to support insert elements to head or tail
+    private Node<E> head;
+    private Node<E> tail;
 
     public LinkedList() {
         this.head = null;
         this.tail = null;
+    }
+
+    /**
+     * return a list from a lot of elements
+     *
+     * @param elements the elements
+     * @param <E> the type of element
+     * @return the list
+     */
+    public static <E> LinkedList<E> of(E... elements) {
+        final LinkedList<E> list = new LinkedList<>();
+
+        if (elements.length > 0) {
+            for(E e: elements) {
+                list.add(e);
+            }
+        }
+
+        return list;
     }
 
     /**
@@ -25,8 +45,8 @@ public class LinkedList<T> implements List<T> {
      * @param data
      */
     @Override
-    public void add(T data) {
-        Node<T> node = new Node<>(data);
+    public void add(E data) {
+        Node<E> node = new Node<>(data);
 
         if (this.tail == null) {
             this.head = node;
@@ -43,8 +63,8 @@ public class LinkedList<T> implements List<T> {
      * @param data
      */
     @Override
-    public void addBefore(T data) {
-        Node<T> node = new Node<>(data);
+    public void addBefore(E data) {
+        Node<E> node = new Node<>(data);
 
         if (this.head == null) {
             this.head = node;
@@ -61,8 +81,8 @@ public class LinkedList<T> implements List<T> {
      * @param data the data to be checked
      */
     @Override
-    public boolean contains(T data) {
-        Node<T> current = this.head;
+    public boolean contains(E data) {
+        Node<E> current = this.head;
         while (current != null) {
             if (current.data == data)
                     return true;
@@ -77,7 +97,7 @@ public class LinkedList<T> implements List<T> {
      * Print the list
      */
     public void printList() {
-        Node<T> current = this.head;
+        Node<E> current = this.head;
         while (current != null) {
             System.out.print(current.data + " ");
             current = current.next;
@@ -91,7 +111,7 @@ public class LinkedList<T> implements List<T> {
     }
 
     @Override
-    public Iterator<T> iterator() {
+    public Iterator<E> iterator() {
         return new ListItr(this.head).iterator();
     }
 
@@ -128,13 +148,13 @@ public class LinkedList<T> implements List<T> {
     /**
      * package data into a node in the list
      *
-     * @param <T> the type of the data
+     * @param <E> the type of the data
      */
-    private static class Node<T> {
-        private T data;
-        private Node<T> next;
+    private static class Node<E> {
+        private E data;
+        private Node<E> next;
 
-        public Node(T data) {
+        public Node(E data) {
             this.data = data;
             this.next = null;
         }
@@ -165,6 +185,13 @@ public class LinkedList<T> implements List<T> {
         }
     }
 
+    private static void test05() {
+        List<String> list = LinkedList.of("hello", "world", "thank you!");
+        for(String s: list) {
+            System.out.println(s);
+        }
+    }
+
     private static LinkedList createList01() {
         LinkedList<Integer> list = new LinkedList();
         list.add(1);
@@ -188,6 +215,7 @@ public class LinkedList<T> implements List<T> {
         // test01();
         // test02();
         // test03();
-        test04();
+        // test04();
+        test05();
     }
 }
